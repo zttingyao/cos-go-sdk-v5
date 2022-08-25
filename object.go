@@ -1615,3 +1615,23 @@ func (s *ObjectService) GetFetchTask(ctx context.Context, bucket string, taskid 
 	}
 	return &res, resp, err
 }
+
+type ObjectPutRenameOptions struct {
+	XCosRenameSource string `header:"x-cos-rename-source" url:"-" xml:"-"`
+}
+
+func (s *ObjectService) PutRename(ctx context.Context, name string, opt *ObjectPutRenameOptions) (*Response, error) {
+	var u string
+	u = fmt.Sprintf("/%s?rename", encodeURIComponent(name))
+	fmt.Println(name)
+	fmt.Println(u)
+	sendOpt := &sendOptions{
+		uri:       u,
+		method:    http.MethodPut,
+		body:      opt,
+		optHeader: opt,
+	}
+	fmt.Println(sendOpt)
+	resp, err := s.client.doRetry(ctx, sendOpt)
+	return resp, err
+}
