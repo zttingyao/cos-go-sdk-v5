@@ -11,12 +11,11 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
-
-	"regexp"
-	"strconv"
 
 	"github.com/google/go-querystring/query"
 	"github.com/mozillazg/go-httpheader"
