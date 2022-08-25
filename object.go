@@ -1615,3 +1615,24 @@ func (s *ObjectService) GetFetchTask(ctx context.Context, bucket string, taskid 
 	}
 	return &res, resp, err
 }
+
+type ObjectPutRenameOptions struct {
+}
+
+func (s *ObjectService) PutRename(ctx context.Context, name string, opt *ObjectPutRenameOptions, id ...string) (*Response, error) {
+	var u string
+	if len(id) == 0 {
+		u = fmt.Sprintf("/%s?rename", encodeURIComponent(name))
+	} else {
+		return nil, errors.New("wrong params")
+	}
+	sendOpt := &sendOptions{
+		baseURL:   s.client.BaseURL.BucketURL,
+		uri:       u,
+		method:    http.MethodPut,
+		body:      opt,
+		optHeader: opt,
+	}
+	resp, err := s.client.doRetry(ctx, sendOpt)
+	return resp, err
+}
