@@ -11,12 +11,11 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
-
-	"regexp"
-	"strconv"
 
 	"github.com/google/go-querystring/query"
 	"github.com/mozillazg/go-httpheader"
@@ -200,6 +199,7 @@ func (c *Client) GetCredential() *Credential {
 }
 
 func (c *Client) newRequest(ctx context.Context, baseURL *url.URL, uri, method string, body interface{}, optQuery interface{}, optHeader interface{}) (req *http.Request, err error) {
+	fmt.Println(checkURL(baseURL))
 	if !checkURL(baseURL) {
 		return nil, invalidBucketErr
 	}
@@ -350,6 +350,7 @@ type sendOptions struct {
 
 func (c *Client) doRetry(ctx context.Context, opt *sendOptions) (resp *Response, err error) {
 	if opt.body != nil {
+		fmt.Println(opt.body.(io.Reader))
 		if _, ok := opt.body.(io.Reader); ok {
 			resp, err = c.send(ctx, opt)
 			return
