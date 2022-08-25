@@ -379,6 +379,7 @@ type ObjectCopyResult struct {
 // https://cloud.tencent.com/document/product/436/10881
 func (s *ObjectService) Copy(ctx context.Context, name, sourceURL string, opt *ObjectCopyOptions, id ...string) (*ObjectCopyResult, *Response, error) {
 	surl := strings.SplitN(sourceURL, "/", 2)
+	fmt.Println(surl)
 	if len(surl) < 2 {
 		return nil, nil, errors.New(fmt.Sprintf("x-cos-copy-source format error: %s", sourceURL))
 	}
@@ -391,6 +392,7 @@ func (s *ObjectService) Copy(ctx context.Context, name, sourceURL string, opt *O
 		return nil, nil, errors.New("wrong params")
 	}
 
+	fmt.Println(u)
 	var res ObjectCopyResult
 	copyOpt := &ObjectCopyOptions{
 		&ObjectCopyHeaderOptions{},
@@ -414,6 +416,7 @@ func (s *ObjectService) Copy(ctx context.Context, name, sourceURL string, opt *O
 		optHeader: copyOpt,
 		result:    &res,
 	}
+	fmt.Println(sendOpt)
 	resp, err := s.client.doRetry(ctx, &sendOpt)
 	// If the error occurs during the copy operation, the error response is embedded in the 200 OK response. This means that a 200 OK response can contain either a success or an error.
 	if resp != nil && resp.StatusCode == 200 {
@@ -1614,4 +1617,25 @@ func (s *ObjectService) GetFetchTask(ctx context.Context, bucket string, taskid 
 		err = json.Unmarshal(buf.Bytes(), &res)
 	}
 	return &res, resp, err
+}
+
+type ObjectPutRenameOptions struct {
+	XCosRenameSource string `header:"x-cos-rename-source" url:"-" xml:"-"`
+}
+
+func (s *ObjectService) PutRename(ctx context.Context, name, sourceURL string, opt *ObjectPutRenameOptions) (*Response, error) {
+	surl := strings.SplitN(sourceURL, "/", 2)
+	if len(surl) < 2 {
+		return nil, errors.New(fmt.Sprintf("x-cos-rename-source format error: #{sourceURL}"))
+	}
+	var u string
+	u = fmt.Sprintf("%s/%s?rename", surl[0], encodeURIComponent(name))
+	sendOpt := &sendOptions{
+		uri:       u,
+		method:    http.MethodPut,
+		body:      nil,
+		optHeader: opt,
+	}
+	resp, err := s.client.doRetry(ctx, sendOpt)
+	return resp, err
 }
